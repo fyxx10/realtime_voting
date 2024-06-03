@@ -132,3 +132,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ![election_video.mp4](video/election_video.mp4)
 
 Thank you for using the Realtime Election Monitoring System! If you have any questions or need further assistance, please feel free to open an issue or contact the project maintainers.(felixnunoo9@gmail.com)
+
+### Special Thanks to Trestle Academy Ghana in collaboration with GIZ Ghana for the opportunity to participate in the Data Engineering Graduate Trainee Program
