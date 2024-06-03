@@ -1,0 +1,70 @@
+version: '3.8'  # Specifies the version of the Docker Compose file format.
+
+# Define volumes to persist data
+volumes:
+  pinotController1:  # Volume for Pinot Controller
+  pinotServer1:      # Volume for Pinot Server
+
+# Define services
+services:
+  # Zookeeper service configuration
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0  # Use Confluent's Zookeeper image, version 7.4.0
+    hostname: zookeeper                    # Set the hostname of the container to 'zookeeper'
+    container_name: zookeeper              # Name the container 'zookeeper'
+    ports:
+      - "2181:2181"                        # Map port 2181 on the host to port 2181 on the container
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181          # Set the client port to 2181
+      ZOOKEEPER_TICK_TIME: 2000            # Set the tick time to 2000 ms
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "echo 'ruok' | nc localhost 2181" ]  # Health check command
+      interval: 10s                       # Run health check every 10 seconds
+      timeout: 5s                         # Timeout for health check is 5 seconds
+      retries: 5                          # Retry up to 5 times before considering the service unhealthy
+
+  # Kafka broker service configuration
+  broker:
+    image: confluentinc/cp-kafka:7.4.0  # Use Confluent's Kafka image, version 7.4.0
+    hostname: broker                   # Set the hostname of the container to 'broker'
+    container_name: broker             # Name the container 'broker'
+    depends_on:
+      zookeeper:
+        condition: service_healthy     # Start this service only when Zookeeper is healthy
+    ports:
+      - "9092:9092"                    # Map port 9092 on the host to port 9092 on the container
+      - "9101:9101"                    # Map port 9101 on the host to port 9101 on the container
+    environment:
+      KAFKA_BROKER_ID: 1                            # Set the broker ID to 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'     # Connect to Zookeeper at 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT  # Security protocol map
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092  # Advertised listeners
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1     # Set the offsets topic replication factor to 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0     # Set the initial rebalance delay to 0 ms
+      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1  # Set the license topic replication factor to 1
+      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1 # Set the balancer topic replication factor to 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1        # Set the minimum in-sync replicas for transaction state log to 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1  # Set the transaction state log replication factor to 1
+      KAFKA_JMX_PORT: 9101                          # Set the JMX port to 9101
+      KAFKA_JMX_HOSTNAME: localhost                 # Set the JMX hostname to localhost
+    healthcheck:
+      test: [ "CMD", "bash", "-c", 'nc -z localhost 9092' ]  # Health check command
+      interval: 10s                       # Run health check every 10 seconds
+      timeout: 5s                         # Timeout for health check is 5 seconds
+      retries: 5                          # Retry up to 5 times before considering the service unhealthy
+
+  # PostgreSQL service configuration
+  postgres:
+    image: postgres:latest               # Use the latest PostgreSQL image
+    container_name: postgres             # Name the container 'postgres'
+    ports:
+      - "5433:5432"                      # Map port 5433 on the host to port 5432 on the container
+    environment:
+      POSTGRES_USER: postgres            # Set the PostgreSQL user to 'postgres'
+      POSTGRES_PASSWORD: postgres        # Set the PostgreSQL password to 'postgres'
+      POSTGRES_DB: election_db           # Set the PostgreSQL database name to 'election_db'
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "postgres" ]  # Health check command
+      interval: 10s                      # Run health check every 10 seconds
+      timeout: 5s                        # Timeout for health check is 5 seconds
+      retries: 5                         # Retry up to 5 times before considering the service unhealthy
