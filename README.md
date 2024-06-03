@@ -131,4 +131,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ### Sample Election Video
 ![election_video.mp4](video/election_video.mp4)
 
-Thank you for using the Realtime Election Monitoring System! If you have any questions or need further assistance, please feel free to open an issue or contact the project maintainers.
+Thank you for using the Realtime Election Monitoring System! If you have any questions or need further assistance, please feel free to open an issue or contact the project maintainers.(felixnunoo9@gmail.com)
