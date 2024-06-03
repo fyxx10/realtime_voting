@@ -1,4 +1,4 @@
-Realtime Election Monitoring System
+Real-Time Election Monitoring System
 ===================================
 This repository contains the code for a realtime election monitoring system. The system is built using Python, Kafka, PostgreSQL, and Streamlit. Docker Compose is used to easily spin up the required services in Docker containers.
 
